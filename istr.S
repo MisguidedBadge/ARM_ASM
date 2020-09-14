@@ -22,7 +22,7 @@
 .globl istr
 
 istr:
-   ldr alp, [SP]           // load 
+   ldr alp, [SP]           // load alphabet pointer
    str r4, [SP, #-4]!      // store r4 on stack to prevent overwrite    
 
 
