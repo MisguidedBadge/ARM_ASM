@@ -5,8 +5,8 @@
 #define alp r12     // alphabet character pointer
 #define i4  r4      // value of i4 and result i4=5*(*i4)+i3
 #define FSZ 1*4     // saving r4
-#define str_size 26  // length of alphabet string 26
-#define SP r13 
+#define str_size 26 // length of alphabet string 26
+#define SP r13      // Stack Pointer Register
 /*
                   r0      r1      r2       r3        SP 
        int istr(int i1, int i2, int i3, int *i4, char *alp);
