@@ -15,8 +15,8 @@
 .globl lvecsum
 
 lvecsum:
-   cmp r0, #0          // see if there are no iterations
-   beq DONE            // exit if iterations = 0
+   cmp r0, #1          // see if there are no iterations
+   bLT DONE            // exit if iterations <= 0
 
 //BODY: carries out summations
    mov iter, r0        // num iterations = N
@@ -28,7 +28,7 @@ lvecsum:
    SUMLOOP:
       // load val from array and post increment array
       ldr val, [in_p], #4   
-      add sum, in_val        // add value to sum
+      add sum, val           // add value to sum
       adds iter, iter, #1    // increment iterations until 0
    bne SUMLOOP               // keep looping until 0
 // R0 has sum, R1 has in_p 

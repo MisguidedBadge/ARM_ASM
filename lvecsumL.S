@@ -16,8 +16,8 @@
 .globl lvecsum
 
 lvecsum:
-   cmp r0, #0          // see if there are no iterations
-   beq DONE            // exit if iterations = 0
+   cmp r0, #1          // see if there are no iterations
+   bLT DONE            // exit if iterations <= 0
 
 //BODY: carries out summations
    mov upper, #0       // zero upper long long 
@@ -30,7 +30,7 @@ lvecsum:
    SUMLOOP:
       // load val from array and post increment array
       ldr val, [in_p], #4       
-      addS sum, in_val          // add value to sum account for carry
+      addS sum, val             // add value to sum account for carry
       adc upper, upper, #0      // if carry set, increment upper
       adds iter, iter, #1       // increment iterations until 0
    bne SUMLOOP                  // keep looping until 0

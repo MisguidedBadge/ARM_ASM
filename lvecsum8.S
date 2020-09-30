@@ -32,8 +32,8 @@
 .globl lvecsum
 
 lvecsum:
-   cmp N, #0                      // see if N is 0
-   beq DONE                       // If N is 0 then exit 
+   cmp N, #1                      // see if N is 0
+   bLT DONE                       // If N is <= 0 then exit 
    stmDB SP!, {r4-r11, LR}        // store all used register on stack
    // Set registers to zero to prevent using uneeded values //
    mov acc_1, #0                  // set accumulator 1 to 0
