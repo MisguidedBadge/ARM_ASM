@@ -79,12 +79,14 @@ word_t *mergeLists
       return(NULL);  /* replace wt your implementation */
 }
 
-word_t *mrgSort     /* RETURNS: base of greatest-to-least ->len sorted list */
+word_t *mrgSortFast     /* RETURNS: base of greatest-to-least ->len sorted list */
 (                   /*          using merge sort, so O( N log2(N) )         */
    unsigned int N,  /* number of nodes in list ub */
-   word_t *ub      /* base ptr for N nodes, not necessarily NULL-terminated */
+   word_t *ub,      /* base ptr for N nodes, not necessarily NULL-terminated */
+   int gNxt,
+   int gI,
   // void *ML,      /* OUT: last node in merged list */
-  // void *UB      /* OUT: *UB set to address of n+1 node, which is unsorted */
+   void *UB      /* OUT: *UB set to address of n+1 node, which is unsorted */
 )
 /*
  * On entry ub is an unsorted list, which will be destroyed to produce sort.
@@ -99,39 +101,31 @@ word_t *mrgSort     /* RETURNS: base of greatest-to-least ->len sorted list */
    int N_U;         // List upper count
    int i;
 
-   // hold the starting address
-   start = ub;
-   // jump the list pointer to right before the halfway point
 
-   for(i = 0; i < (N/2) - 1; i++)
+   if(N == 1)
    {
-      ub = ub->next; // traverse to next list starting point - 1
+      int **pp = UB;
+      *pp = *((int**)(((char*)(ub))+(gNxt)));
+      *((int**)(((char*)(ub))+(gNxt))) = (int*)(NULL);
+      return ub;
    }
-   // assign the halfway mark
-   half = ub->next;
-   // sever the connection
-   ub->next = NULL; 
+   else if(N > 1)
+   {
 
+      N_L = N >> 1;
+      N_U = (N + 1) >> 1;
 
-   // Assign list counts. Upper takes the remainder
-   N_L = (N / 2);  // ceiling if odd
-   N_U = (N + 1) / 2;
+      void *rb;
+      ub =  mrgSortFast(N_L, ub, gNxt, gI, &rb);
+      rb =  mrgSortFast(N_U, rb, gNxt, gI, UB);
+      ub = mergeLists(N_L, N_U, ub, rb);
+      return(rb);
+   }
+   return(NULL);
 
-   // recursive call if not broken down all the way
-   if(N_L != 1)
-      ub = mrgSort(N_L, start);
-
-   if(N_U != 1)
-      half = mrgSort(N_U, half);
-
-   // merge the upper and lower half
-   ub = mergeLists(N_L, N_U, ub, half);
-
-
-   return(ub);  /* replace with your implementation. */
 }
 
-word_t *mrgSortFast(word_t *ub) /* required ABI, wraps recursive mrgSort */
+word_t *mrgSort(word_t *ub, int gNxt, int gI) /* required ABI, wraps recursive mrgSort */
 /* 
  * NOTE: mrgSortFast is not recursive: the optimized mrgSort above handles
  *       the recursion while passing extra information (not of interest to 
@@ -184,7 +178,7 @@ word_t *mrgSortFast(word_t *ub) /* required ABI, wraps recursive mrgSort */
   // allocate pointer list according to the length
 
 
-   ub = mrgSort(length, ub);
+   ub = mrgSortFast(length, ub, gNxt, gI, &ub);
 
 
 
