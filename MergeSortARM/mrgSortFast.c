@@ -16,7 +16,7 @@ word_t *mergeLists
    // List pointers fro the new list
    word_t * new_list_s;     // start
    word_t * new_list;       // end
-
+   int left, right;
    // if left base is less than right then take that as the first list node
    // lb increments to it's next node
    if(lb->len < rb->len)
@@ -43,11 +43,13 @@ word_t *mergeLists
       }
    }
    // new list starting assigned
+   left = lb->len;
+   right = rb->len;
    new_list_s = new_list;
    while(1)
    {
       // if lb smaller than rb then assign lb to the next node of new list
-      if(lb->len < rb->len)
+      if(left < right)
       {
          new_list->next = lb;
          // increment new list
@@ -60,10 +62,11 @@ word_t *mergeLists
            {
               new_list->next = rb;
               return(new_list_s);
-           } 
+           }
+     	 left = lb->len;
       }
       // vice versa for rb
-      if(rb->len <= lb->len)
+      if(right <= left)
       {
          new_list->next = rb;
          new_list = new_list->next;
@@ -74,6 +77,7 @@ word_t *mergeLists
             new_list->next = lb;
             return(new_list_s);
          }
+         right = rb->len;
       }
    }   
       return(NULL);  /* replace wt your implementation */
@@ -83,10 +87,10 @@ word_t *mrgSortFast     /* RETURNS: base of greatest-to-least ->len sorted list 
 (                   /*          using merge sort, so O( N log2(N) )         */
    unsigned int N,  /* number of nodes in list ub */
    word_t *ub,      /* base ptr for N nodes, not necessarily NULL-terminated */
-   int gNxt,
-   int gI,
-  // void *ML,      /* OUT: last node in merged list */
-   void *UB      /* OUT: *UB set to address of n+1 node, which is unsorted */
+  // int gNxt,
+  // int gI,
+   //void *ML,      /* OUT: last node in merged list */
+   word_t **UB      /* OUT: *UB set to address of n+1 node, which is unsorted */
 )
 /*
  * On entry ub is an unsorted list, which will be destroyed to produce sort.
@@ -94,32 +98,25 @@ word_t *mrgSortFast     /* RETURNS: base of greatest-to-least ->len sorted list 
  * RETURNS: base ptr of list sorted by ->len.
  */
 {
-
-   word_t *start;  // List start address of the list pointer
-   word_t * half;   // Upper half pointer
    int N_L;         // List lower count
    int N_U;         // List upper count
-   int i;
-
-
+   void *rb;
+   // basis case  where n == 1 //
    if(N == 1)
    {
-      int **pp = UB;
-      *pp = *((int**)(((char*)(ub))+(gNxt)));
-      *((int**)(((char*)(ub))+(gNxt))) = (int*)(NULL);
-      return ub;
+      *UB = ub->next;   // set the address of n + 1 
+      ub->next = NULL;  // cut off left from right
+      return ub;        // return left side
    }
-   else if(N > 1)
+   // break list up and return sorted list
+   else if (N > 1)
    {
-
-      N_L = N >> 1;
-      N_U = (N + 1) >> 1;
-
-      void *rb;
-      ub =  mrgSortFast(N_L, ub, gNxt, gI, &rb);
-      rb =  mrgSortFast(N_U, rb, gNxt, gI, UB);
-      ub = mergeLists(N_L, N_U, ub, rb);
-      return(rb);
+      N_L = N >> 1;   // N_L = N / 2
+      N_U = (N + 1) >> 1; // N_U = (N+1) / 2
+      ub =  mrgSortFast(N_L, ub,  &rb); // call left side
+      rb =  mrgSortFast(N_U, rb, UB);   // call for right side
+      ub = mergeLists(N_L, N_U, ub, rb);  // merge both sorted lists
+      return(ub);
    }
    return(NULL);
 
@@ -137,19 +134,13 @@ word_t *mrgSort(word_t *ub, int gNxt, int gI) /* required ABI, wraps recursive m
 {
 
    // local variables
-   int length = 0;
-   word_t * point;
-   word_t * point_s;
-   //word_t * last;
-   //word_t * 
-   //int counter = 0;
-   //int threshold = 1;
-
-
-
+   int length = 0;    // length of list
+   word_t * point;    // temp pointer to traverse list right side
+   word_t * point_s;  // temp poitner to traverse list left side
    // 0 length list check // (mostly for the entry ub to see if the user is fooling with use >_<)
    if(ub == NULL)
       return NULL;
+   // 1 length list check to prevent breaking on that //
    if(ub->next == NULL)
       return ub;
    // check if the list is already sorted
@@ -161,26 +152,19 @@ word_t *mrgSort(word_t *ub, int gNxt, int gI) /* required ABI, wraps recursive m
    {
       point = point->next;
       point_s = point_s->next;
-      //printf("Exit \n");
+      // if the point is null then reached end and sorted//
       if(point == NULL)
       {
          printf("already sorted! \n");
          return(ub);
        }
-         
-
    }
-
+   // count the number of nodes in the list
    for(point = ub; point != NULL; point = point->next)
       { 
          length++;
       }
-  // allocate pointer list according to the length
-
-
-   ub = mrgSortFast(length, ub, gNxt, gI, &ub);
-
-
-
+   // call the recursion function to sort list
+   ub = mrgSortFast(length, ub, &ub);
    return(ub);  /* replace with your implementation */
 }
